@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.Property">
+
+	<!-- 实体 -->
+	<resultMap type="com.pms.code.entity.base.Property" id="PropertyMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="company_name" property="company_name" jdbcType="VARCHAR" />
+		<result column="contacts" property="contacts" jdbcType="VARCHAR" />
+		<result column="telphone" property="telphone" jdbcType="VARCHAR" />
+		<result column="addr" property="addr" jdbcType="VARCHAR" />
+		<result column="appid" property="appid" jdbcType="VARCHAR" />
+		<result column="app_secret" property="app_secret" jdbcType="VARCHAR" />
+		<result column="app_key" property="app_key" jdbcType="VARCHAR" />
+		<result column="mch_id" property="mch_id" jdbcType="VARCHAR" />
+		<result column="logo_url" property="logo_url" jdbcType="VARCHAR" />
+		<result column="bg_url" property="bg_url" jdbcType="VARCHAR" />
+		<result column="icon_url" property="icon_url" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 分页查询物业公司列表 -->
+	<select id="queryPropertyList" resultMap="PropertyMap"
+		parameterType="hashmap">
+		SELECT * FROM t_property
+		<where>
+			<if test="company_name!=null and company_name!=''">
+				company_name like '%' #{company_name} '%'
+			</if>
+		</where>
+		ORDER BY createtime DESC
+		LIMIT #{startCount},#{pageSize}
+	</select>
+
+
+	<!-- 通过物业id查询物业公司列表 -->
+	<select id="queryPropertyById" parameterType="java.lang.Integer"
+		resultMap="PropertyMap">
+		SELECT * FROM t_property WHERE id=#{id}
+	</select>
+
+	<!-- 物业公司删除 -->
+	<delete id="deleteProperty" parameterType="Integer[]">
+		DELETE FROM t_property WHERE id in
+		<foreach collection="array" item="id" separator="," open="("
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 保存物业公司修改 -->
+	<update id="saveEditProperty" parameterType="Property">
+		UPDATE t_property
+		SET
+		company_name=#{company_name},contacts=#{contacts},telphone=#{telphone},
+		addr=#{addr}, logo_url=#{logo_url}, bg_url=#{bg_url},
+		icon_url=#{icon_url}
+		WHERE id=#{id}
+	</update>
+
+	<!-- 物业公司总数 -->
+	<select id="queryPropertyTotal" parameterType="Property"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM t_property
+		<where>
+			<if test="company_name!=null and company_name!=''">
+				company_name like '%' #{company_name} '%'
+			</if>
+		</where>
+	</select>
+
+	<!-- 添加新物业公司 -->
+	<insert id="insertProperty" parameterType="com.pms.code.entity.base.Property">
+		INSERT INTO t_property
+		(company_name,contacts,telphone,addr,appid,app_secret,app_key,mch_id,logo_url,bg_url,icon_url,createtime)
+		VALUES
+		(#{company_name},#{contacts},#{telphone},#{addr},#{appid},#{app_secret},#{app_key},#{mch_id},#{logo_url},#{bg_url},#{icon_url},#{createtime})
+	</insert>
+
+	<!-- 根据用户id查询物业公司 -->
+	<select id="queryPropertyByPid" parameterType="java.lang.Integer"
+		resultMap="PropertyMap">
+		select * from t_property where id=#{pid}
+	</select>
+	
+	<!-- 修改图片url -->
+	<update id="updatePropertyUrl" parameterType="hashmap">
+		update t_property 
+		<set>
+			<if test="logoUrl!='' and logoUrl!=''">
+				logo_url=#{logoUrl},
+			</if>
+			<if test="bgUrl!=null and bgUrl!=''">
+				bg_url=#{bgUrl}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+</mapper>

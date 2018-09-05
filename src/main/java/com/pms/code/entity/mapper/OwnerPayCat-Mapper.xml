@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.OwnerPaycat">
+	<!-- 缴费列表输出映射 -->
+	<resultMap id="ownerPaycatMap" type="com.pms.code.entity.base.OwnerPaycat">
+		<id column="id" property="id" jdbcType="INTEGER"></id>
+		<result column="owner_name" property="owner_name" jdbcType="VARCHAR"></result>
+		<result column="amount" property="amount" jdbcType="DOUBLE"></result>
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP"></result>
+		<result column="finishtime" property="finishtime" jdbcType="TIMESTAMP"></result>
+		<association property="costType" javaType="com.pms.code.entity.base.CostType">
+			<id column="id" property="id" />
+			<result column="pay_name" property="pay_name" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+
+	<!-- 删除缴费信息 -->
+	<delete id="deleteOwnerPaycatByUIds" parameterType="Integer[]">
+		DELETE FROM t_owner_paycat WHERE owner_id IN
+		<foreach collection="array" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 已经缴费列表查询 -->
+	<!-- 查询缴费列表:用户 -->
+	<select id="queryOwnerPayCatList" parameterType="hashmap"
+		resultMap="ownerPaycatMap">
+		SELECT
+		op.`id`,op.`owner_name`,ct.`pay_name`,op.`amount`,op.`createtime`,op.`finishtime`
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<if test="pmid!='' and pmid!=''">
+				and op.p_m_id=#{pmid}
+			</if>
+		</where>
+		ORDER BY op.createtime DESC
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+	<!-- 查询缴费列表:公司 -->
+	<select id="queryOwnerPayCatListCompany" parameterType="hashmap"
+		resultMap="ownerPaycatMap">
+		SELECT
+		op.`id`,op.`owner_name`,ct.`pay_name`,op.`amount`,op.`createtime`,op.`finishtime`
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+		ORDER BY op.createtime DESC
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询缴费总数:用户 -->
+	<select id="queryOwnerPayCatTotal" resultType="java.lang.Integer"
+		parameterType="hashmap">
+		SELECT
+		COUNT(*)
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<if test="pmid!='' and pmid!=null">
+				and op.p_m_id=#{pmid}
+			</if>
+		</where>
+	</select>
+	<!-- 查询缴费总数:公司 -->
+	<select id="queryOwnerPayCatTotalCompany" resultType="java.lang.Integer"
+		parameterType="hashmap">
+		SELECT
+		COUNT(*)
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!-- 未缴费列表:用户 -->
+	<select id="queryUnOwnerPayCatList" parameterType="hashmap"
+		resultMap="ownerPaycatMap">
+		SELECT
+		op.`id`,op.`owner_name`,ct.`pay_name`,op.`amount`,op.`createtime`,op.`finishtime`
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<if test="pmid!='' and pmid!=''">
+				and op.p_m_id=#{pmid}
+			</if>
+		</where>
+		ORDER BY op.createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+	<!-- 未缴费列表:公司 -->
+	<select id="queryUnOwnerPayCatListCompany" parameterType="hashmap"
+		resultMap="ownerPaycatMap">
+		SELECT
+		op.`id`,op.`owner_name`,ct.`pay_name`,op.`amount`,op.`createtime`,op.`finishtime`
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+		ORDER BY op.createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询未缴费总数:用户 -->
+	<select id="queryUnOwnerPayCatTotal" resultType="java.lang.Integer"
+		parameterType="hashmap">
+		SELECT
+		COUNT(*)
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<if test="pmid!='' and pmid!=''">
+				and op.p_m_id=#{pmid}
+			</if>
+		</where>
+	</select>
+	<!-- 查询未缴费总数:公司 -->
+	<select id="queryUnOwnerPayCatTotalCompany" resultType="java.lang.Integer"
+		parameterType="hashmap">
+		SELECT
+		COUNT(*)
+		FROM t_owner_paycat op,t_cost_type ct
+		<where>
+			op.pay_item=ct.pay_item
+			<if test="STATUS!='' and STATUS!=null or STATUS==0">
+				and STATUS=#{STATUS}
+			</if>
+			<if test="owner_name!='' and owner_name!=null">
+				and op.owner_name like '%' #{owner_name} '%'
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!-- 缴费录入 -->
+	<insert id="ownerPayCatEnter" parameterType="com.pms.code.entity.base.OwnerPaycat">
+		insert into
+		t_owner_paycat(p_m_id,owner_id,owner_name,pay_item,status,amount,createtime)
+		values(#{pmid},#{owner_id},#{owner_name},#{pay_item},#{status},#{amount},#{createtime})
+	</insert>
+
+
+	<!-- 月度流水费用 -->
+	<select id="qureyMonthCost" parameterType="hashmap" resultMap="ownerPaycatMap">
+		SELECT op.`id`,op.`owner_name`,op.`amount`,ct.`pay_name`,op.createtime
+		FROM
+		t_owner_paycat op
+		INNER JOIN t_cost_type ct
+		ON
+		op.`pay_item`=ct.`pay_item`
+		WHERE DATE_FORMAT(op.createtime, '%Y%m' ) =
+		DATE_FORMAT( CURDATE( ) , '%Y%m' )
+		ORDER BY op.`owner_name` ASC
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询月度流水总数 -->
+	<select id="queryMonthCostTotal" resultType="java.lang.Integer">
+		SELECT COUNT(*) AS
+		num
+		FROM
+		t_owner_paycat op
+		INNER JOIN t_cost_type ct
+		ON
+		op.`pay_item`=ct.`pay_item`
+		WHERE DATE_FORMAT(createtime, '%Y%m' ) =
+		DATE_FORMAT( CURDATE( ) , '%Y%m' )
+	</select>
+
+	<!-- 查询未缴费信息 -->
+	<select id="queryPayCatById" resultMap="ownerPaycatMap">
+		SELECT
+		op.`id`,op.`owner_name`,ct.`pay_name`,op.`amount`,op.`createtime`,op.`finishtime`
+		FROM t_owner_paycat op,t_cost_type ct
+		where op.id=#{id}
+	</select>
+
+	<!-- 修改未缴费信息 -->
+	<update id="updateUnpayCatInfo" parameterType="OwnerPaycat">
+		update
+		t_owner_paycat
+		set
+		owner_name=#{owner_name},pay_item=#{pay_item},amount=#{amount}
+		where id=#{id}
+	</update>
+
+	<!-- 删除缴费信息 -->
+	<delete id="deleteUnPayCatInfo" parameterType="java.lang.Integer">
+		delete from
+		t_owner_paycat where id=#{id}
+	</delete>
+
+	<!-- 查询业主每月账单 -->
+	<select id="queryOwnerPayCat" parameterType="hashmap" resultMap="ownerPaycatMap">
+		SELECT
+		tp.id,tp.owner_id,tp.owner_name,tp.amount,ct.`pay_name`
+		FROM
+		t_owner_paycat tp,t_property_management_department td,t_cost_type ct
+		<where>
+			DATE_FORMAT(finishtime, '%Y%m') = DATE_FORMAT(CURDATE( ) ,
+			'%Y%m')
+			AND
+			tp.p_m_id=td.id AND tp.pay_item=ct.pay_item
+			<if test="status!='' and status!=null">
+				and tp.status=#{status}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!=''">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

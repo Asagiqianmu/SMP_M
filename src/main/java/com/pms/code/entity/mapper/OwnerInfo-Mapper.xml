@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.OwnerInfo">
+
+	<resultMap id="OwnerInfoMap" type="com.pms.code.entity.base.OwnerInfo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="ownername" property="ownername" jdbcType="VARCHAR" />
+		<result column="telphone" property="telphone" jdbcType="VARCHAR" />
+		<result column="p_m_id" property="pmid" jdbcType="INTEGER" />
+		<result column="units" property="units" jdbcType="VARCHAR" />
+		<result column="rooms" property="rooms" jdbcType="VARCHAR" />
+		<result column="cash_pledge" property="cashPledge" jdbcType="DOUBLE" />
+		<result column="rental" property="rental" jdbcType="DOUBLE" />
+		<result column="house_type" property="houseType" jdbcType="INTEGER" />
+		<result column="isliving" property="isliving" jdbcType="INTEGER" />
+		<result column="leave_time" property="leave_time" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="management_department_name" property="managementDepartmentName"
+			jdbcType="VARCHAR" />
+		<result column="province" property="province" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="area" property="area" jdbcType="VARCHAR" />
+		<result column="house_name" property="houseName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 批量给业主退房处理 -->
+	<update id="deleteOwnerInfoByIds" parameterType="Integer[]">
+		UPDATE t_owner_info SET isliving=0 WHERE id in
+		<foreach collection="array" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<!-- 给业主办理入住、退房处理 -->
+	<update id="updateOwnerInfoIsliving" parameterType="hashmap">
+		UPDATE
+		t_owner_info SET isliving=#{isliving},leave_time=#{leave_time} WHERE
+		id = #{id}
+	</update>
+
+	<!-- 添加所有者房源信息 -->
+	<insert id="addOwnerInfo" parameterType="OwnerInfo" keyProperty="id"
+		useGeneratedKeys="true">
+		INSERT INTO t_owner_info
+		(ownername,telphone,p_m_id,units,rooms,house_type,isliving,leave_time,cash_pledge,rental,createtime)
+		VALUES (#{ownername},
+		#{telphone},#{pmid},#{units},#{rooms},#{houseType},#{isliving},#{leave_time},#{cashPledge},#{rental},#{createtime})
+	</insert>
+
+	<!-- 通过手机号查询业主信息 -->
+	<select id="queryOwnerInfoByInfo" parameterType="OwnerInfo"
+		resultType="OwnerInfo">
+		select * from t_owner_info where ownername=#{ownername} AND
+		telphone=#{telphone}
+		AND p_m_id=#{pmid} AND units=#{units} AND
+		rooms=#{rooms}
+	</select>
+
+	<!-- 修改业主信息 -->
+	<update id="updateOwnerInfo" parameterType="hashmap">
+		update t_owner_info
+		<set>
+			<if test="units!='' and units!=null">
+				units=#{units},
+			</if>
+			<if test="rooms!='' and rooms!=null">
+				rooms=#{rooms},
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				telphone=#{telphone},
+			</if>
+			<if test="ownerName!='' and telphone!=null">
+				ownername=#{ownerName},
+			</if>
+			<if test="cashPledge!='' and cashPledge!=null">
+				cash_pledge=#{cashPledge},
+			</if>
+			<if test="rental!='' and rental!=null">
+				rental=#{rental},
+			</if>
+			<if test="housetypel!='' and houseType!=null">
+				house_type=#{houseType}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 查询业主列表 :用户 -->
+	<select id="queryOwnerInfoList" parameterType="hashmap"
+		resultMap="OwnerInfoMap">
+		SELECT * FROM t_owner_info
+		<where>
+			<if test="userName!='' and userName!=null">
+				AND ownername=#{userName}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				AND telphone=#{telphone}
+			</if>
+			<if test="isliving!='' and isliving!=null">
+				AND isliving=#{isliving}
+			</if>
+			<if test="pmid!='' and pmid!=null">
+				AND p_m_id=#{pmid}
+			</if>
+		</where>
+		order by createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+	<!-- 查询业主列表 :公司 -->
+	<select id="queryOwnerInfoListCompany" parameterType="hashmap"
+		resultMap="OwnerInfoMap">
+		SELECT * FROM t_owner_info
+		<where>
+			<if test="userName!='' and userName!=null">
+				and ownername=#{userName}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				and telphone=#{telphone}
+			</if>
+			<if test="isliving!='' and isliving!=null">
+				AND isliving=#{isliving}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+		order by createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询业主总数:用户 -->
+	<select id="queryOwnerInfoTotal" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_owner_info
+		<where>
+			<if test="userName!='' and userName!=null">
+				AND ownername=#{userName}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				AND telphone=#{telphone}
+			</if>
+			<if test="isliving!='' and isliving!=null">
+				AND isliving=#{isliving}
+			</if>
+			<if test="pmid!='' and pmid!=null">
+				AND p_m_id=#{pmid}
+			</if>
+		</where>
+	</select>
+	<!-- 查询业主总数:公司 -->
+	<select id="queryOwnerInfoTotalCompany" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_owner_info
+		<where>
+			<if test="userName!='' and userName!=null">
+				and ownername=#{userName}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				and telphone=#{telphone}
+			</if>
+			<if test="isliving!='' and isliving!=null">
+				AND isliving=#{isliving}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+	<!-- 查询业主通过id -->
+	<select id="queryOwnerInfoById" parameterType="java.lang.Integer"
+		resultMap="OwnerInfoMap">
+		SELECT ti.id,td.id AS
+		pmid,ti.cash_pledge,ti.rental,ti.house_type,ti.ownername,ti.telphone,ti.units,ti.rooms,tt.house_name,td.management_department_name,td.province,td.city,td.area
+		FROM `t_owner_info` AS ti,`t_property_management_department` AS td,t_house_type as tt
+		WHERE ti.p_m_id=td.id AND ti.id=#{id} AND tt.house_type=ti.house_type
+	</select>
+
+	<!-- 查询业主信息通过pmid -->
+	<select id="queryOwnerInfoByPidPmid" parameterType="hashmap"
+		resultMap="OwnerInfoMap">
+		SELECT
+		ti.id,ti.p_m_id,ti.rooms,td.management_department_name
+		FROM
+		`t_owner_info` AS ti,`t_property_management_department` AS td
+		<where>
+			ti.p_m_id=td.id
+			<choose>
+				<when test="pmid!=null and pmid!=''">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+</mapper>

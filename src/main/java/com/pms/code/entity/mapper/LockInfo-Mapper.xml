@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.LockInfo">
+	<insert id="insertLockInfo" parameterType="LockInfo">
+		insert into
+		t_lock_info(deviceModel,lockType,deviceStatus,powerStatus,deviceId,createtime)
+		Values(#{deviceModel},#{lockType},#{deviceStatus},#{powerStatus},#{deviceId},#{createtime})
+		ON DUPLICATE KEY UPDATE
+		deviceModel=#{deviceModel},deviceStatus=#{deviceStatus},powerStatus=#{powerStatus},lockType=#{lockType}
+	</insert>
+</mapper>

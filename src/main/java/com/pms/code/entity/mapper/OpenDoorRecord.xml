@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.OpenDoorRecord">
+	<!-- 查询开门记录:用户 -->
+	<select id="queryOpenDoorRecord" parameterType="hashmap"
+		resultType="OpenDoorRecord">
+		SELECT * FROM t_open_door_record
+		<where>
+			<if test="style!='' and style!=null">
+				style=#{style}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and keyname IN (SELECT keyname FROM t_unlockingkey WHERE
+				p_m_id=#{pmid})
+			</if>
+		</where>
+		ORDER BY createtime desc
+		LIMIT #{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询开门记录:公司 -->
+	<select id="queryOpenDoorRecordCompany" parameterType="hashmap"
+		resultType="OpenDoorRecord">
+		SELECT * FROM t_open_door_record
+		<where>
+			<if test="style!='' and style!=null">
+				style=#{style}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and keyname IN (SELECT keyname FROM t_unlockingkey
+					WHERE p_m_id=#{pmid})
+				</when>
+				<otherwise>
+					and keyname IN (SELECT keyname FROM t_unlockingkey WHERE
+					p_m_id IN (SELECT id FROM t_property_management_department WHERE pid=#{pid}) GROUP BY keyname)
+				</otherwise>
+			</choose>
+		</where>
+		ORDER BY createtime desc
+		LIMIT #{startCount},#{pageSize}
+	</select>
+
+	<!-- 开门记录总数:用户 -->
+	<select id="queryOpenDoorRecordTotal" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_open_door_record
+		<where>
+			<if test="style!='' and style!=null">
+				style=#{style}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and keyname IN (SELECT keyname FROM t_unlockingkey WHERE p_m_id=#{pmid})
+			</if>
+		</where>
+	</select>
+
+	<!-- 开门记录总数:公司 -->
+	<select id="queryOpenDoorRecordTotalCompany" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_open_door_record
+		<where>
+			<if test="style!='' and style!=null">
+				style=#{style}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and keyname IN (SELECT keyname FROM t_unlockingkey WHERE p_m_id=#{pmid})
+				</when>
+				<otherwise>
+					and keyname IN (SELECT keyname FROM t_unlockingkey WHERE
+					p_m_id IN (SELECT id FROM t_property_management_department WHERE pid=#{pid}) GROUP BY keyname)
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+</mapper>

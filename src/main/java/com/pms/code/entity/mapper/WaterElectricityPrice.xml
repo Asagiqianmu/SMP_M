@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.WaterElectricityPrice">
+	<resultMap type="com.pms.code.entity.base.WaterElectricityPrice"
+		id="waterElectricityPriceMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="price" property="price" jdbcType="DOUBLE" />
+		<result column="cost_type_Id" property="costTypeId" jdbcType="DOUBLE" />
+		<result column="p_m_id" property="pmid" jdbcType="INTEGER" />
+		<result column="unit" property="unit" jdbcType="VARCHAR" />
+		<result column="pay_name" property="payName" jdbcType="VARCHAR" />
+		<result column="createtime" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 查询水电费 -->
+	<select id="queryWaterElectricityPrice" parameterType="hashmap"
+		resultMap="waterElectricityPriceMap">
+		SELECT tp.id,tp.price,tp.unit,tt.pay_name
+		FROM
+		`t_water_electricity_price` tp,t_cost_type AS tt
+		WHERE
+		tp.p_m_id=#{pmid} AND tt.id=tp.cost_type_Id
+	</select>
+
+	<!-- 修改水费价格 -->
+	<update id="updateWaterElectricityPrice" parameterType="hashmap">
+		update
+		t_water_electricity_price set price=#{price} where id=#{id}
+	</update>
+
+	<update id="updateWaterElectricityPriceByWep" parameterType="hashmap">
+		update t_water_electricity_price 
+		<set>
+			<if test="price!='' and price!=null">
+				price=#{price},
+			</if>
+			<if test="unit!='' and unit!=null">
+				unit=#{unit}
+			</if>
+		</set>
+		where
+		cost_type_Id=#{costTypeId} and p_m_id=#{pmid} 
+	</update>
+
+	<!-- 新增 -->
+	<insert id="insertWaterElectricityPrice" parameterType="WaterElectricityPrice">
+		insert
+		into
+		t_water_electricity_price(price,cost_type_Id,p_m_id,unit,createtime)
+		VALUES(#{price},#{costTypeId},#{pmid},#{unit},#{createTime})
+	</insert>
+
+	<select id="queryWaterElectricityPriceByWep" parameterType="WaterElectricityPrice"
+		resultMap="waterElectricityPriceMap">
+		select * from t_water_electricity_price where cost_type_Id=#{costTypeId} and
+		p_m_id=#{pmid}
+	</select>
+</mapper>
+	

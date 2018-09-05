@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.OwnerPmd">
+	<!-- 查询业主与小区管理处的关联 -->
+	<resultMap id="OwnerPmdMap" type="com.pms.code.entity.base.OwnerPmd">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="ownerid" property="ownerid" jdbcType="INTEGER" />
+		<result column="p_m_id" property="p_m_id" jdbcType="INTEGER" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 添加业主账号 -->
+	<insert id="addOwnerPmd" parameterType="OwnerPmd" keyProperty="id" useGeneratedKeys="true">
+		insert into t_owner_pmd (ownerid,p_m_id,createtime) VALUES (#{ownerid}, #{p_m_id},#{createtime})
+	</insert>
+
+
+	<!-- 根据手机号查询业主信息 -->
+	<select id="qureyOwnerPmd" parameterType="hashmap" resultType="OwnerPmd">
+		select * from t_owner_pmd where ownerid=#{ownerid} and p_m_id=#{p_m_id}
+	</select>
+	
+	<delete id="deleteOwnerPmd" parameterType="hashmap">
+		delete from t_owner_pmd where ownerid=#{ownerid} and p_m_id=#{p_m_id}
+	</delete>
+	
+</mapper> 

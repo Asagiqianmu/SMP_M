@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.UseWaterElectricity">
+
+	<!-- 实体 -->
+	<resultMap type="com.pms.code.entity.base.UseWaterElectricity"
+		id="UseWaterElectricityMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="device_id" property="device_id" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="use_count" property="use_count" jdbcType="DOUBLE" />
+		<result column="readtime" property="readtime" jdbcType="VARCHAR" />
+		<result column="createtime" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 根据用户id查找某一天的水电用量信息 -->
+	<select id="findUseWaterElectricityInfoByUserId_mounth"
+		resultMap="UseWaterElectricityMap" parameterType="hashmap">
+		SELECT * FROM
+		t_use_water_electricity WHERE type = #{type} AND readtime =
+		#{readtime} AND device_id IN
+		(SELECT device_id FROM t_energy_consumption_device WHERE house_id in
+		(SELECT rooms FROM t_owner_info where id in (SELECT infoid FROM
+		t_owner_house_relation WHERE ownerid=#{userId}))) ORDER BY readtime
+	</select>
+
+	<!-- 插入水电费信息 -->
+	<insert id="insertUseWaterElectricityInfo" parameterType="UseWaterElectricity">
+		insert into
+		t_use_water_electricity(device_id,type,use_count,readtime,createtime)
+		VALUES(#{device_id},#{type},#{use_count},#{readtime},#{createTime})
+	</insert>
+	
+	<!-- 查询使用水电费信息 -->
+	<select id="queryUseWaterElectricity" resultType="UseWaterElectricity">
+		select * from  t_use_water_electricity
+	</select>
+	
+	<!-- 修改使用水电费信息 -->
+	<update id="updateUseWaterElectricity" parameterType="hashmap">
+		update t_use_water_electricity set use_count=#{count} where device_id=#{deviceId}
+	</update>
+</mapper>

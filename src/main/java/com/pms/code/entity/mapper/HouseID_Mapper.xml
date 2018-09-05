@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.HouseID">
+	<resultMap type="com.pms.code.entity.base.HouseID" id="houseIDMap">
+		<id property="id" column="id" jdbcType="INTEGER" />
+		<result property="p_m_id" column="p_m_id" jdbcType="INTEGER" />
+		<result property="infoid" column="infoid" jdbcType="INTEGER" />
+		<result property="houseid" column="houseid" jdbcType="VARCHAR" />
+		<result property="createtime" column="createtime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap type="com.pms.code.entity.base.HouseID" id="pHouseIDMap">
+		<id property="id" column="id" jdbcType="INTEGER" />
+		<result property="p_m_id" column="p_m_id" jdbcType="INTEGER" />
+		<result property="infoid" column="infoid" jdbcType="INTEGER" />
+		<result property="houseid" column="houseid" jdbcType="VARCHAR" />
+		<result property="createtime" column="createtime" jdbcType="TIMESTAMP" />
+		<association property="propertyManagementDepartment"
+			javaType="com.pms.code.entity.base.PropertyManagementDepartment">
+			<id property="id" column="id" jdbcType="INTEGER" />
+			<result property="management_department_name" column="management_department_name"
+				jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+
+	<select id="queryHouseID" parameterType="hashmap" resultMap="houseIDMap">
+		select * from t_houseid where houseid=#{houseid}
+	</select>
+
+	<insert id="insertHouseID" parameterType="HouseID">
+		insert into
+		t_houseid(p_m_id,infoid,houseid,createtime)
+		VALUES(#{p_m_id},#{infoid},#{houseid},#{createtime})
+	</insert>
+
+	<select id="queryHouseIDById" parameterType="int" resultMap="pHouseIDMap">
+		SELECT ti.infoid,td.management_department_name
+		FROM t_houseid AS ti ,`t_property_management_department` AS td
+		WHERE ti.p_m_id=td.id AND ti.infoid=#{houseid}
+	</select>
+</mapper>

@@ -1,0 +1,9 @@
+﻿body,html{font-size:12px;font-family:"微软雅黑","Microsoft YaHei",sans-serif;line-height:1.8em;border-collapse:collapse;background:#fff}
+a{text-decoration:none}
+*{padding:0px;margin:0px;outline:none;word-wrap:break-word}
+div.notice_page{margin:0 auto;height:100%}
+div.notice_page .notice_404_p{height:470px;background:url('../images/404_02.png') center 70px no-repeat}
+div.notice_page .home_page{margin:0 auto;height:40px;width:300px;padding-left:82px}
+div.notice_page .home_page .notice_retun{background:#e8e8e8 url('../images/404_return.png') no-repeat 5px center;margin-right:20px}
+div.notice_page .home_page a{display:block;padding:5px 5px 5px 30px;color:#676767;float:left;margin:0 auto;border:1px solid #ccc;border-radius:3px}
+div.notice_page .home_page .notice_home{background:#e8e8e8 url('../images/404_home.png') no-repeat 5px center}

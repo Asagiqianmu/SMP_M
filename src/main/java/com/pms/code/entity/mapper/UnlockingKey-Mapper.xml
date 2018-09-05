@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.UnlockingKey">
+	<!-- 输出映射 -->
+	<resultMap type="com.pms.code.entity.base.UnlockingKey" id="unlockingKeyMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="p_m_id" property="p_m_id" jdbcType="INTEGER" />
+		<result column="keyname" property="keyname" jdbcType="VARCHAR" />
+		<result column="doorNum" property="doorNum" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="dlc_id" property="dlc_id" jdbcType="INTEGER" />
+		<result column="createtime" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<!-- 关系表输出映射 -->
+	<resultMap type="com.pms.code.entity.base.UnlockingKey" id="relationUnlockingKeyMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="p_m_id" property="p_m_id" jdbcType="INTEGER" />
+		<result column="keyname" property="keyname" jdbcType="VARCHAR" />
+		<result column="doorNum" property="doorNum" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="dlc_id" property="dlc_id" jdbcType="INTEGER" />
+		<result column="createtime" property="createTime" jdbcType="TIMESTAMP" />
+		<association property="equipmentSysProvider"
+			javaType="com.pms.code.entity.base.EquipmentSysProvider">
+			<id property="id" column="id" jdbcType="INTEGER" />
+			<result property="company_name" column="company_name"
+				jdbcType="VARCHAR" />
+		</association>
+		<association property="lockInfo" javaType="com.pms.code.entity.base.LockInfo">
+			<id property="id" column="id" jdbcType="INTEGER" />
+			<result property="deviceModel" column="deviceModel" jdbcType="VARCHAR" />
+			<result property="powerStatus" column="powerStatus" jdbcType="VARCHAR" />
+			<result property="deviceStatus" column="deviceStatus" jdbcType="VARCHAR" />
+			<result property="lockType" column="lockType" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+
+	<!-- 根据钥匙ID获取钥匙信息 -->
+	<select id="findKeyInfoByID" resultMap="unlockingKeyMap"
+		parameterType="hashmap">
+		SELECT * FROM t_unlockingkey WHERE id=#{id}
+	</select>
+
+	<!-- 插入钥匙信息 -->
+	<!-- <insert id="insertUnlockingKey" parameterType="UnlockingKey"> insert 
+		into t_unlockingkey(p_m_id,keyname,doorNum,type,dlc_id,createtime) VALUES(#{p_m_id},#{keyname},#{doorNum},#{type},#{dlc_id},#{createTime}) 
+		</insert> -->
+	<insert id="insertUnlockingKey" parameterType="UnlockingKey">
+		INSERT INTO
+		t_unlockingkey(p_m_id,keyname,doorNum,type,dlc_id,createtime)
+		VALUES(#{p_m_id},#{keyname},#{doorNum},#{type},#{dlc_id},#{createTime})
+		ON DUPLICATE KEY UPDATE
+		keyname=#{keyname},type=#{type} 
+	</insert>
+
+	<!-- 查询门锁信息 -->
+	<select id="queryUnlockingKey" parameterType="hashmap"
+		resultMap="unlockingKeyMap">
+		select tk.id,tk.keyname,tk.doorNum,tp.company_name,tk.createtime
+		from
+		t_unlockingkey AS tk,`t_equipment_sys_provider` AS tp
+		<where>
+			tk.dlc_id=tp.id
+			<if test="title!=null and title!=''">
+				and tk.keyname=#{keyname}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and tk.p_m_id=#{pmid}
+			</if>
+		</where>
+		Order by createtime desc
+		Limit #{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询门锁信息总数 -->
+	<select id="queryUnlockingKeyTotal" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		select Count(*) from t_unlockingkey AS tk,`t_equipment_sys_provider`
+		AS tp
+		<where>
+			tk.dlc_id=tp.id
+			<if test="title!=null and title!=''">
+				and tk.keyname=#{keyname}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and tk.p_m_id=#{pmid}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryUnlockingKeyByHouseId" parameterType="hashmap"
+		resultMap="relationUnlockingKeyMap">
+		SELECT
+		tk.id,tk.keyname,tk.doorNum,tp.company_name,ti.deviceModel,ti.powerStatus,ti.lockType,ti.deviceStatus
+		FROM t_unlockingkey AS tk, t_equipment_sys_provider AS tp, t_lock_info
+		AS ti
+		WHERE tk.dlc_id=tp.id AND tk.doorNum=ti.deviceId AND
+		tk.keyname=#{houseId}
+		GROUP BY tk.keyname
+	</select>
+
+	<select id="queryAllUnlockingKey" resultMap="unlockingKeyMap">
+		select * from
+		t_unlockingkey
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

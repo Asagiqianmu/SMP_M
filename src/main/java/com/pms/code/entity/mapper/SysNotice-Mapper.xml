@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.SysNotice">
+	<!-- 公告实体 -->
+	<resultMap type="com.pms.code.entity.base.SysNotice" id="SysNoticeMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="subtitle" property="subtitle" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="publisher" property="publisher" jdbcType="VARCHAR" />
+		<result column="p_m_id" property="pmid" jdbcType="INTEGER" />
+		<result column="createtime" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 查询公告列表 -->
+	<!-- 用户登录查询 -->
+	<select id="querySysNoticeList" resultMap="SysNoticeMap"
+		parameterType="hashmap">
+		select * from `t_sys_notice`
+		<where>
+			<if test="title!=null and title!=''">
+				title=#{title}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and p_m_id=#{pmid}
+			</if>
+		</where>
+		ORDER BY createtime DESC
+		LIMIT #{startCount},#{pageSize}
+	</select>
+	<!-- 公司登录查询 -->
+	<select id="querySysNoticeListCompany" resultMap="SysNoticeMap"
+		parameterType="hashmap">
+		SELECT * FROM t_sys_notice
+		<where>
+			<if test="title!=null and title!=''">
+				and title=#{title}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+		ORDER BY createtime DESC
+		LIMIT #{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询总数:公司 -->
+	<select id="querySysNoticeTotalCompany" resultType="java.lang.Integer"
+		parameterType="hashmap">
+		SELECT COUNT(*) FROM t_sys_notice
+		<where>
+			<if test="title!=null and title!=''">
+				and title=#{title}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!-- 通过id查询公告列表 -->
+	<select id="querySysNoticeById" parameterType="java.lang.Integer"
+		resultMap="SysNoticeMap">
+		SELECT * FROM t_sys_notice WHERE id=#{id}
+	</select>
+
+	<!-- 公告删除 -->
+	<delete id="deleteSysNotice" parameterType="Integer[]">
+		DELETE FROM t_sys_notice WHERE id in
+		<foreach collection="array" item="id" separator="," open="("
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 保存公告修改 -->
+	<update id="saveEditSysNotice" parameterType="SysNotice">
+		UPDATE t_sys_notice
+		SET title=#{title},subtitle=#{subtitle},content=#{content} WHERE
+		id=#{id}
+	</update>
+
+	<!-- 公告总数:用户 -->
+	<select id="querySysNoticeTotal" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM t_sys_notice
+		<where>
+			<if test="title!=null and title!=''">
+				title like '%' #{title} '%'
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and p_m_id=#{pmid}
+			</if>
+		</where>
+	</select>
+
+	<!-- 添加新公告 -->
+	<insert id="insertSysNotice" parameterType="SysNotice">
+		INSERT INTO
+		t_sys_notice
+		(title,subtitle,content,publisher,p_m_id,createtime)
+		VALUES
+		(#{title},#{subtitle},#{content},#{publisher},#{pmid},#{createTime})
+	</insert>
+</mapper>

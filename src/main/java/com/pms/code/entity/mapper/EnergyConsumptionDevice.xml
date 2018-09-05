@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.EnergyConsumptionDevice">
+	<resultMap type="com.pms.code.entity.base.EnergyConsumptionDevice"
+		id="energyConsumptionDeviceMap">
+		<id property="id" column="id" jdbcType="INTEGER" />
+		<result property="deviceModel" column="deviceModel" jdbcType="VARCHAR" />
+		<result property="energy_type" column="energy_type" jdbcType="INTEGER" />
+		<result property="sub_type" column="sub_type" jdbcType="INTEGER" />
+		<result property="device_id" column="device_id" jdbcType="VARCHAR" />
+		<result property="device_status" column="device_status"
+			jdbcType="INTEGER" />
+		<result property="house_id" column="house_id" jdbcType="VARCHAR" />
+		<result property="meter_value" column="meter_value" jdbcType="DOUBLE" />
+		<result property="createtime" column="createtime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 如果t_energy_consumption_device存在相同deviceId,则修改 -->
+	<insert id="insertEnergyConsumptionDevice" parameterType="EnergyConsumptionDevice">
+		INSERT
+		INTO
+		t_energy_consumption_device(deviceModel,energy_type,sub_type,device_id,device_status,house_id,meter_value)
+		VALUES(#{deviceModel},#{energy_type},#{sub_type},#{device_id},#{device_status},#{house_id},#{meter_value})
+		ON DUPLICATE KEY UPDATE
+		house_id=#{house_id},meter_value=#{meter_value},sub_type=#{sub_type},device_status=#{device_status},energy_type=#{energy_type}
+	</insert>
+
+	<update id="updateEnergyConsumptionDevice" parameterType="hashmap">
+		update
+		t_energy_consumption_device set meter_value=#{meterValue} where
+		device_id=#{deviceId}
+	</update>
+
+	<select id="queryEnergyConsumptionDeviceByDevice" resultMap="energyConsumptionDeviceMap">
+		select * from t_energy_consumption_device
+	</select>
+
+	<select id="queryEnergyConsumptionDeviceByHouseId"
+		parameterType="hashmap" resultMap="energyConsumptionDeviceMap">
+		select * from
+		t_energy_consumption_device where house_id=#{houseId}
+	</select>
+
+	<!-- 查询能耗设备信息 -->
+	<select id="queryEnergyConsumptionDeviceByHouseIds" parameterType="hashmap" resultMap="energyConsumptionDeviceMap" >
+		SELECT
+		id,deviceModel,energy_type,sub_type,device_status,house_id,meter_value,createtime
+		from `t_energy_consumption_device`
+		WHERE energy_type=#{energyType} AND house_id IN
+		<foreach collection="houseIds" item="houseId" index="index" open="(" separator="," close=")">
+			#{houseId}
+		</foreach>
+		Order By createtime desc
+		limit #{startCount},#{pageSize}
+	</select>
+	
+	<!-- 查询能耗设备信息总数 -->
+	<select id="queryEnergyConsumptionDeviceTotal"
+		parameterType="hashmap" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*) from
+		`t_energy_consumption_device`
+		WHERE energy_type=#{energyType} AND house_id IN
+		<foreach collection="houseIds" item="houseId" index="index" open="(" separator="," close=")">
+			#{houseId}
+		</foreach>
+	</select>
+	
+</mapper>

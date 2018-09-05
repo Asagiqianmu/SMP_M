@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.Maintenance">
+
+	<!-- 维修服务列表:用户登录 -->
+	<select id="queryMaintenance" parameterType="hashmap"
+		resultType="Maintenance">
+		SELECT *
+		FROM t_maintenance
+		<where>
+			<if test="companyName!='' and companyName!=null">
+				company_name=#{companyName}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and p_m_id=#{pmid}
+			</if>
+		</where>
+		ORDER BY createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 维修服务列表:公司登录 -->
+	<select id="queryMaintenanceCompany" parameterType="hashmap"
+		resultType="Maintenance">
+		SELECT *
+		FROM t_maintenance
+		<where>
+			<if test="companyName!='' and companyName!=null">
+				company_name=#{companyName}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where
+					pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+		ORDER BY createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询维修列表总数:用户登录 -->
+	<select id="queryMaintenanceTotal" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM t_maintenance
+		<where>
+			<if test="companyName!='' and companyName!=null">
+				company_name=#{companyName}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and p_m_id=#{pmid}
+			</if>
+		</where>
+	</select>
+	<!-- 查询维修列表总数:公司登录 -->
+	<select id="queryMaintenanceTotalComapny" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM t_maintenance
+		<where>
+			<if test="companyName!='' and companyName!=null">
+				company_name=#{companyName}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from
+					t_property_management_department where
+					pid=#{pid})
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!-- 删除维修服务信息 -->
+	<delete id="deleteMainTenance" parameterType="Integer[]">
+		delete from t_maintenance where id in
+		<foreach collection="array" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 编辑维修服务信息 -->
+	<update id="updateMaintenance" parameterType="Maintenance">
+		update t_maintenance
+		<set>
+			<if test="company_name != null and company_name!=''">
+				company_name = #{company_name,jdbcType=VARCHAR},
+			</if>
+			<if test="main_business != null  and main_business!=''">
+				main_business = #{main_business,jdbcType=VARCHAR},
+			</if>
+			<if test="telephone != null  and telephone !=''">
+				telephone = #{telephone,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null and address != ''">
+				address = #{address, jdbcType=VARCHAR},
+			</if>
+			<if test="image_url != null and image_url != ''">
+				image_url = #{image_url, jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!-- 查询维修服务 -->
+	<select id="queryMaintenanceById" parameterType="java.lang.Integer"
+		resultType="Maintenance">
+		select * from t_maintenance
+		where id=#{id}
+	</select>
+
+	<!-- 增加维修项目 -->
+	<insert id="insertMaintenance" parameterType="Maintenance">
+		insert into t_maintenance(p_m_id,company_name,main_business,telephone,address,image_url,createTime)
+		VALUES(#{pmid},#{company_name},#{main_business},#{telephone},#{address},#{image_url},#{createTime})
+	</insert>
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.ConvenienceInfo">
+	<!-- 查询便民信息 :用户登录-->
+	<select id="queryConvenienceInfo" parameterType="hashmap"
+		resultType="ConvenienceInfo">
+		SELECT * FROM t_convenience_info
+		<where>
+			<if test="contacts!='' and contacts!=null">
+				contacts=#{contacts}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				and c_telphone=#{telphone}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and p_m_id=#{pmid} 
+			</if>
+		</where>
+		ORDER BY createtime DESC
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+	
+	<!-- 查询便民信息 :公司登录-->
+	<select id="queryConvenienceInfoCompany" parameterType="hashmap"
+		resultType="ConvenienceInfo">
+		SELECT * FROM t_convenience_info
+		<where>
+			<if test="contacts!='' and contacts!=null">
+			 	and contacts=#{contacts}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				and c_telphone=#{telphone}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where> 
+		ORDER BY createtime DESC
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询便民信息总数 :用户登录-->
+	<select id="queryConvenienceInfoTotal" parameterType="hashmap" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_convenience_info
+		<where>
+			<if test="contacts!='' and contacts!=null">
+				contacts=#{contacts}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				and c_telphone=#{telphone}
+			</if>
+			<if test="pmid!=null and pmid!=''">
+				and p_m_id=#{pmid} 
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询便民信息总数 :公司登录-->
+	<select id="queryConvenienceInfoTotalCompany" parameterType="hashmap" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM t_convenience_info
+		<where>
+			<if test="contacts!='' and contacts!=null">
+			 	and contacts=#{contacts}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				and c_telphone=#{telphone}
+			</if>
+			<choose>
+				<when test="pmid!=null and pmid!='' and pid!=null">
+					and p_m_id=#{pmid}
+				</when>
+				<otherwise>
+					and p_m_id in (select id from t_property_management_department where pid=#{pid})
+				</otherwise>
+			</choose>
+		</where> 
+	</select>
+	
+	<!-- 增加便民信息 -->
+	<insert id="insertConvenienceInfo" parameterType="ConvenienceInfo">
+		insert into t_convenience_info(p_m_id,service_type,contacts,c_telphone,c_address,headimg,createtime)
+		values(#{pmid},#{service_type},#{contacts},#{c_telphone},#{c_address},#{headimg},#{createtime})
+	</insert>
+ 
+	<!-- 查询便民信息通过id -->
+	<select id="queryConvenienceInfoById" parameterType="java.lang.Integer" resultType="ConvenienceInfo">
+		select * from t_convenience_info where id=#{id}
+	</select>
+	
+	<!-- 修改便民信息 -->  
+	<update id="updateConvenienceInfo" parameterType="ConvenienceInfo">
+		update t_convenience_info
+		<set>
+			<if test="contacts!='' and contacts!=null">
+				contacts=#{contacts},
+			</if>
+			<if test="c_telphone!='' and c_telphone!=null">
+				c_telphone=#{c_telphone},
+			</if>
+			<if test="c_address!='' and c_address!=null">
+				c_address=#{c_address},
+			</if>
+			<if test="service_type!='' and service_type!=null">
+				service_type=#{service_type},
+			</if>
+			<if test="headimg!='' and headimg!=null">
+				headimg=#{headimg}
+			</if>
+		</set> 
+		where id=#{id}
+	</update>
+	
+	<!-- 删除便民信息 -->
+	<delete id="deleteConvenienceInfo" parameterType="java.lang.Integer">
+		delete from t_convenience_info where id in
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>	
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.CommunityOwnerInfo">
+
+	<resultMap id="CommunityOwnerInfoMap" type="com.pms.code.entity.base.CommunityOwnerInfo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="ownername" property="ownername" jdbcType="VARCHAR" />
+		<result column="telphone" property="telphone" jdbcType="VARCHAR" />
+		<result column="p_m_id" property="pmid" jdbcType="INTEGER" />
+		<result column="units" property="units" jdbcType="VARCHAR" />
+		<result column="rooms" property="rooms" jdbcType="VARCHAR" />
+		<result column="cash_pledge" property="cashPledge" jdbcType="DOUBLE" />
+		<result column="rental" property="rental" jdbcType="DOUBLE" />
+		<result column="house_type" property="houseType" jdbcType="INTEGER" />
+		<result column="isliving" property="isliving" jdbcType="INTEGER" />
+		<result column="leave_time" property="leave_time" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="management_department_name" property="managementDepartmentName"
+			jdbcType="VARCHAR" />
+		<result column="province" property="province" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="area" property="area" jdbcType="VARCHAR" />
+		<result column="house_name" property="houseName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 查询业主列表 :小区+业主 -->
+	<select id="queryCommunityOwnerInfoList" parameterType="hashmap"
+		resultMap="CommunityOwnerInfoMap">
+		SELECT
+		ti.id,td.id AS pmid,ti.ownername,ti.telphone,ti.p_m_id,ti.units,ti.rooms,ti.house_type,ti.isliving,ti.cash_pledge,ti.rental,ti.createtime,
+		td.management_department_name,td.contact_number,td.province,td.city,td.area,tt.house_name
+		FROM
+		`t_owner_info` AS ti,`t_property_management_department` AS td,t_house_type as tt
+		<where>
+			ti.p_m_id=td.id  AND tt.house_type=ti.house_type
+			AND ti.p_m_id in (select id from t_property_management_department where pid=#{pid})
+			<if test="userName!='' and userName!=null">
+				AND ownername=#{userName}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				AND telphone=#{telphone}
+			</if>
+			<if test="isliving!='' and isliving!=null">
+				AND isliving=#{isliving}
+			</if>
+		</where>
+		order by createtime desc
+		LIMIT
+		#{startCount},#{pageSize}
+	</select>
+	
+	<!-- 查询业主列表总数 :小区+业主 -->
+	<select id="queryCommunityOwnerInfoCount" parameterType="hashmap"
+		resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		FROM
+		`t_owner_info` AS ti,`t_property_management_department` AS td,t_house_type as tt
+		<where>
+			ti.p_m_id=td.id  AND tt.house_type=ti.house_type
+			AND ti.p_m_id in (select id from t_property_management_department where pid=#{pid})
+			<if test="userName!='' and userName!=null">
+				AND ownername=#{userName}
+			</if>
+			<if test="telphone!='' and telphone!=null">
+				AND telphone=#{telphone}
+			</if>
+			<if test="isliving!='' and isliving!=null">
+				AND isliving=#{isliving}
+			</if>
+		</where>
+	</select>
+</mapper>

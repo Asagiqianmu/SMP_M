@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+		http://www.springframework.org/schema/mvc
+       	http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		">
+	<!-- 配置缓存管理器 -->
+	<!-- <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager"> 
+		指定ehcache的配置文件 <property name="cacheManagerConfigFile" value="classpath:ehcache-shiro.xml"/> 
+		</bean> -->
+
+	<!-- 配置进行授权和认证的realm -->
+	<bean id="myRealm" class="com.pms.code.service.impl.RealmServiceImpl"></bean>
+
+	<!--配置shiro的securityManager Bean -->
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="myRealm" />
+		<!-- <property name="cacheManager" ref="cacheManager"/> -->
+	</bean>
+
+	<!-- 配置bean 后置处理器 ：会自动调用和spring整合后各个组件的生命周期方法 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<!-- 配置ShiroFilter bean:该bean的id必须和web.xml文件中filter的name一致 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<!-- 装配 securityManager -->
+		<property name="securityManager" ref="securityManager" />
+		<!-- 配置登录页面 -->
+		<property name="loginUrl" value="/toLogin" />
+		<!-- 登录成功之后的页面 -->
+		<property name="successUrl" value="/jumpFance" />
+		<!-- 授权失败页面 -->
+		<property name="unauthorizedUrl" value="/login" />
+		<!-- 具体配置需要拦截哪些URL，以及访问对应的URL时 -->
+		<property name="filterChainDefinitions">
+			<!-- anon表示 可以 匿名登录 -->
+			<!-- authc表示 需要认证（登录）才能使用 -->
+			<!-- roles 角色过滤器，判断当前用户是否指定角色 -->
+			<value>
+				/shiro-logout = logout
+				/toLogin = anon
+				<!-- 测试：,perms[aaab] 暂无权限 -->
+				/allSiteOfReportStatistics/* = authc,roles[user],perms[user_perm]<!-- 
+					已登录的 商户可以访问 -->
+			</value>
+		</property>
+	</bean>
+</beans>

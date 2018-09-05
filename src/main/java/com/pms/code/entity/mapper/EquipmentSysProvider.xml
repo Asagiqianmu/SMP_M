@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.EquipmentSysProvider">
+
+	<!-- 实体 -->
+	<resultMap type="com.pms.code.entity.base.EquipmentSysProvider"
+		id="EquipmentSysProviderMap">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="company_name" property="company_name" jdbcType="VARCHAR" />
+		<result column="services" property="services" jdbcType="VARCHAR" />
+		<result column="contacts" property="contacts" jdbcType="VARCHAR" />
+		<result column="telphone" property="telphone" jdbcType="VARCHAR" />
+		<result column="host" property="host" jdbcType="VARCHAR" />
+		<result column="sys_username" property="sys_username" jdbcType="VARCHAR" />
+		<result column="sys_passwd" property="sys_passwd" jdbcType="VARCHAR" />
+		<result column="createtime" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 根据ID获取信息 -->
+	<select id="findEquipmentSysProviderInfoByID" resultMap="EquipmentSysProviderMap"
+		parameterType="hashmap">
+		SELECT * FROM t_equipment_sys_provider WHERE id=#{id}
+	</select>
+
+	<!-- 查询服务提供商信息 -->
+	<select id="queryEquipmentSysProviderInfo" resultMap="EquipmentSysProviderMap"
+		parameterType="hashmap">
+		select * from t_equipment_sys_provider
+		Order By
+		createtime desc
+		LIMIT #{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询服务提供商总数 -->
+	<select id="queryEquipmentSysProviderInfoTotal" resultType="java.lang.Integer">
+		select count(*) from t_equipment_sys_provider
+	</select>
+
+	<!-- 修改服务商信息 -->
+	<update id="updateEquipmentSysProviderInfo" parameterType="EquipmentSysProvider">
+		update t_equipment_sys_provider
+		set company_name=#{company_name},
+		services=#{services},contacts=#{contacts},telphone=#{telphone}
+		where
+		id=#{id}
+	</update>
+
+	<!-- 添加服务商信息 -->
+	<insert id="insertEquipmentSysProviderInfo" parameterType="EquipmentSysProvider">
+		insert into
+		t_equipment_sys_provider(company_name,services,contacts,telphone,host,sys_username,sys_passwd)
+		values
+		(#{company_name},#{services},#{contacts},#{telphone},#{host},#{sys_username},#{sys_passwd})
+	</insert>
+	
+	<!-- 删除服务商 -->
+	<delete id="deleteEquipmentSysProviderInfo" parameterType="Integer[]">
+		delete from t_equipment_sys_provider where id in
+		<foreach collection="array" item="id" separator="," open="("
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>

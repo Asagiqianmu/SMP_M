@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.PropertyManagementDepartment">
+	<!-- 查询物业管理部分信息 -->
+	<select id="queryPropertyManagementDepartmentList"
+		parameterType="hashmap" resultType="PropertyManagementDepartment">
+		select * from
+		t_property_management_department
+		where pid=#{pid}
+		order by createtime
+		DESC
+		LIMIT #{startCount},#{pageSize}
+	</select>
+
+	<!-- 查询物业办事处总数 -->
+	<select id="queryPropertyManagementDepartmentTotal"
+		parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select
+		COUNT(*) from
+		t_property_management_department
+		where pid=#{pid}
+	</select>
+
+	<!-- 查询小区信息 -->
+	<select id="queryPropertyManagementDepartmentById"
+		parameterType="java.lang.Integer" resultType="PropertyManagementDepartment">
+		select * from
+		t_property_management_department where id=#{id}
+	</select>
+
+	<!-- 添加小区信息 -->
+	<insert id="insertPropertyManagementDepartment" parameterType="PropertyManagementDepartment">
+		insert into t_property_management_department
+		(pid,management_department_name,contact_number,province,city,area,createtime)
+		values(#{pid},#{management_department_name},#{contact_number},#{province},#{city},#{area},#{createtime})
+	</insert>
+
+	<!-- 删除小区信息 -->
+	<delete id="deletePropertyManagementDepartment" parameterType="Integer[]">
+		delete from t_property_management_department where id in
+		<foreach collection="array" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 保存物业管理修改 -->
+	<update id="saveEditPropertyManagementDepartment" parameterType="PropertyManagementDepartment">
+		update t_property_management_department
+		<set>
+			<if test="management_department_name!=null and management_department_name!=''">
+				management_department_name=#{management_department_name},
+			</if>
+			<if test="contact_number!=null and contact_number!=''">
+				contact_number=#{contact_number},
+			</if>
+			<if test="province!=null and province!=''">
+				province=#{province},
+			</if>
+			<if test="city!=null and city!=''">
+				city=#{city},
+			</if>
+			<if test="area!=null and area!=''">
+				area=#{area}
+			</if>
+		</set>
+		where id=#{id} 
+	</update>
+
+	<!-- 查询物业小区管理员信息 -->
+	<select id="queryAllPropertyManagementDepartmentList"
+		parameterType="hashmap" resultType="PropertyManagementDepartment">
+		select * from
+		t_property_management_department
+		where pid=#{pid} GROUP BY management_department_name ORDER BY createtime
+		DESC
+	</select>
+
+	<!-- 查询物业小区根据物业信息 -->
+	<select id="queryPropertyManagementDepartment" parameterType="PropertyManagementDepartment"  resultType="PropertyManagementDepartment">
+		select * from t_property_management_department
+		where
+		pid=#{pid} AND management_department_name=#{management_department_name} AND province=#{province} AND
+		city=#{city} AND area=#{area}
+	</select>
+
+	<!-- 查询物业信息通过物业处名称 -->
+	<select id="queryPropertyManagementDepartmentByName" parameterType="hashmap" resultType="PropertyManagementDepartment">
+		select id from t_property_management_department where management_department_name=#{management_department_name}
+	</select>
+	
+	<!-- 根据小区所在地区查询小区名称 -->
+	<select id="queryPropertyManagementDepartmentName" parameterType="hashmap" resultType="PropertyManagementDepartment">
+		select * from t_property_management_department  where province=#{province} and city=#{city} and area=#{area}
+	</select>
+</mapper>

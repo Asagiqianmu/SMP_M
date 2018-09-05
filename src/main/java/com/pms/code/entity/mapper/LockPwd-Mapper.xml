@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pms.code.entity.base.LockPwd">
+	<!-- 构建输出映射 -->
+	<resultMap type="com.pms.code.entity.base.LockPwd" id="lockPwdMap">
+		<id property="id" column="id" jdbcType="INTEGER"/>
+		<result property="telphone" column="telphone" jdbcType="VARCHAR"/>
+		<result property="doorid" column="doorid" jdbcType="INTEGER"/>
+		<result property="pwd" column="pwd" jdbcType="VARCHAR"/>
+		<result property="type" column="type" jdbcType="INTEGER"/>
+		<result property="pwdID" column="pwdId" jdbcType="VARCHAR"/>
+	</resultMap>
+
+	<!-- 新增门锁密码 -->
+	<insert id="insertLockPwd" parameterType="LockPwd">
+		insert into
+		t_lock_pwd(telphone,doorid,pwd,type,pwdID)
+		VALUES(#{telphone},#{doorid},#{pwd},#{type},#{pwdID})
+	</insert>
+	
+	<!-- 修改门锁密码 -->
+	<update id="updateLockPwd" parameterType="LockPwd">
+		update t_lock_pwd set pwd=#{pwd} where id=#{id}
+	</update>
+	
+	<!-- 根据id查询门锁密码 -->
+	<select id="queryLockPwdById" parameterType="hashmap" resultMap="lockPwdMap">
+		select * from  t_lock_pwd  where id=#{id}
+	</select>
+	
+	<!-- 门锁删除密码 -->
+	<delete id="deleteLockPwd" parameterType="hashmap">
+		delete from t_lock_pwd where doorid=#{doorid}
+	</delete>
+</mapper>
